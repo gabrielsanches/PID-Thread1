@@ -69,7 +69,7 @@ public class Metodos {
                     int blue = (int) (c.getBlue() * 0.114);
                     int valor_pixel = red + green + blue;
                     Color gray;
-                    if (valor_pixel < 200) {
+                    if (valor_pixel < 180) {
                         gray = new Color(red + green + blue, red + green + blue, red + green + blue);
                     } else {
                         gray = new Color(255, 255, 255);
@@ -81,6 +81,60 @@ public class Metodos {
             File ouptut = new File(destino + "/" + img.getNome() + "_Limiarizado_" + execucao + ".bmp");
             ImageIO.write(imagem, "bmp", ouptut);
         }
+    }
+
+    public ArrayList<ArrayList<Integer>> varreduraColuna(ArrayList<Imagem> lista, int execucao, String destino) {
+        ArrayList<ArrayList<Integer>> result = new ArrayList<ArrayList<Integer>>();
+        int width;
+        int height;
+        BufferedImage image;
+
+        for (Imagem img : lista) {
+            image = img.getImg();
+            width = image.getWidth();
+            height = image.getHeight();
+            Integer linha = 0;
+            ArrayList<Integer> linhasImg = new ArrayList<>();
+            for (int i = 0; i < height; i++) {
+                linha = 0;
+                for (int j = 0; j < width; j++) {
+                    Color c = new Color(image.getRGB(j, i));
+                    if ((int) c.getGreen() < 0.4) {
+                        linha++;
+                    }
+                }
+                linhasImg.add(linha);
+            }
+            result.add(linhasImg);
+        }
+        return result;
+    }
+
+    public ArrayList<ArrayList<Integer>> varreduraLinha(ArrayList<Imagem> lista, int execucao, String destino) {
+        ArrayList<ArrayList<Integer>> result = new ArrayList<ArrayList<Integer>>();
+        int width;
+        int height;
+        BufferedImage image;
+
+        for (Imagem img : lista) {
+            image = img.getImg();
+            width = image.getWidth();
+            height = image.getHeight();
+            Integer coluna = 0;
+            ArrayList<Integer> colunasImg = new ArrayList<>();
+            for (int i = 0; i < width; i++) {
+                coluna = 0;
+                for (int j = 0; j < width; j++) {
+                    Color c = new Color(image.getRGB(i, j));
+                    if ((int) c.getGreen() < 0.4) {
+                        coluna++;
+                    }
+                }
+                colunasImg.add(coluna);
+            }
+            result.add(colunasImg);
+        }
+        return result;
     }
 
     public void Contraste(ArrayList<Imagem> lista, int execucao, String destino) throws IOException {
