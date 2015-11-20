@@ -102,10 +102,10 @@ public class Metodos {
             height = image.getHeight();
             Integer linha = 0;
             ArrayList<Integer> linhasImg = new ArrayList<>();
-            for (int i = 0; i < height; i++) {
+            for (int i = 0; i < width; i++) {
                 linha = 0;
-                for (int j = 0; j < width; j++) {
-                    Color c = new Color(image.getRGB(j, i));
+                for (int j = 0; j < height; j++) {
+                    Color c = new Color(image.getRGB(i, j));
                     if ((int) c.getGreen() < 0.4) {
                         linha++;
                     }
@@ -139,10 +139,10 @@ public class Metodos {
             height = image.getHeight();
             Integer coluna = 0;
             ArrayList<Integer> colunasImg = new ArrayList<>();
-            for (int i = 0; i < width; i++) {
+            for (int i = 0; i < height; i++) {
                 coluna = 0;
                 for (int j = 0; j < width; j++) {
-                    Color c = new Color(image.getRGB(i, j));
+                    Color c = new Color(image.getRGB(j, i));
                     if ((int) c.getGreen() < 0.4) {
                         coluna++;
                     }
