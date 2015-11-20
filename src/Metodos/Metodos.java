@@ -9,7 +9,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
 
-    //---------------------------estrutura basica para os metodos-------------------------------------------
+//---------------------------estrutura basica para os metodos-------------------------------------------
 //
 //  public void METODO(ArrayList<Imagem> lista, int execucao,String destino) throws IOException {
 //      int width;
@@ -89,14 +89,14 @@ public class Metodos {
         ArrayList<ArrayList<Integer>> result = new ArrayList<ArrayList<Integer>>();
         int width;
         int height;
-        BufferedImage image;  
+        BufferedImage image;
         int count = 0;
-        
+
         for (Imagem img : lista) {
             count++;
-            FileWriter arq = new FileWriter("Teste_coluna"+count+".txt");
+            FileWriter arq = new FileWriter("Teste_coluna" + count + ".txt");
             PrintWriter gravarArq = new PrintWriter(arq);
-            gravarArq.println("Arquivo "+count);
+            gravarArq.println("Arquivo " + count);
             image = img.getImg();
             width = image.getWidth();
             height = image.getHeight();
@@ -110,7 +110,7 @@ public class Metodos {
                         linha++;
                     }
                 }
-                gravarArq.print(linha+" ");
+                gravarArq.print(linha + " ");
                 linhasImg.add(linha);
             }
             gravarArq.println();
@@ -127,13 +127,13 @@ public class Metodos {
         int width;
         int height;
         BufferedImage image;
-        int count=0;
+        int count = 0;
 
         for (Imagem img : lista) {
             count++;
-            FileWriter arq = new FileWriter("Teste_linha"+count+".txt");
+            FileWriter arq = new FileWriter("Teste_linha" + count + ".txt");
             PrintWriter gravarArq = new PrintWriter(arq);
-            gravarArq.println("Arquivo "+ count);
+            gravarArq.println("Arquivo " + count);
             image = img.getImg();
             width = image.getWidth();
             height = image.getHeight();
@@ -147,7 +147,7 @@ public class Metodos {
                         coluna++;
                     }
                 }
-                gravarArq.print(coluna+" ");
+                gravarArq.print(coluna + " ");
                 colunasImg.add(coluna);
             }
             gravarArq.println();
@@ -160,6 +160,99 @@ public class Metodos {
     }
 
     public void Contraste(ArrayList<Imagem> lista, int execucao, String destino) throws IOException {
+
+    }
+
+    public ArrayList<ArrayList<Recorte>> capturarRecorte(ArrayList<ArrayList<Integer>> linha, ArrayList<ArrayList<Integer>> coluna) {
+
+        boolean flag = true;//true=busca limite minimo, false=busca limite maximo
+        ArrayList<ArrayList<Recorte>> recortesAll = new ArrayList<ArrayList<Recorte>>();
+        int pLinha[] = new int[1000];
+        int pColuna[] = new int[1000];
+        int contador;
+        ArrayList<Integer> img;
+        for (int nImg = 0; nImg < linha.size(); nImg++) {
+            ArrayList<Recorte> recortes = new ArrayList<Recorte>();
+            contador = 0;
+            img = linha.get(nImg);
+            for (int i = 0; i < img.size() - 2; i++) {
+                if (flag) {
+                    if (img.get(i) > 15 && img.get(i + 1) > 15 && img.get(i + 2) > 15) {
+                        
+                        pLinha[contador] = i;
+                        flag = false;
+                        contador++;
+                    }
+                } else {
+                    if (img.get(i) <= 15 && img.get(i + 1) <= 15 && img.get(i + 2) <= 15) {
+                        pLinha[contador] = i;
+                        flag = true;
+                        contador++;
+                    }
+                }
+            }
+
+            flag = true;
+            img = coluna.get(nImg);
+            contador=0;
+            
+            for (int i = 0; i < img.size() - 2; i++) {
+                if (flag) {
+                    if (img.get(i) > 15 && img.get(i + 1) > 15 && img.get(i + 2) > 15) {
+                        pColuna[contador] = i;
+                        flag = false;
+                        contador++;
+                    }
+                } else if (img.get(i) <= 15 && img.get(i + 1) <=15 && img.get(i + 2) <= 15) {
+                    pColuna[contador] = i;
+                    flag = true;
+                    contador++;
+                }
+            }
+
+            for (int i = 0; i < 100; i = i + 2) {
+                for (int j = 0; j < 100; j = j + 2) {
+                    if (pColuna[j] == 0) {//nao possui mais elementos para corte
+                        break;
+                    }
+                    recortes.add(new Recorte(pLinha[i]-5, pLinha[i + 1]+5, pColuna[j]-5, pColuna[j + 1]+5));
+                }
+                if (pLinha[i] == 0) {//nao possui mais elementos para corte
+                    break;
+                }
+            }
+            recortesAll.add(recortes);
+        }
+        return recortesAll;
+    }
+
+    public void Recortar(ArrayList<Imagem> lista, int execucao, String destino, ArrayList<ArrayList<Recorte>> rec) throws IOException {
+        BufferedImage image;
+        int a, b;
+        for (int nImg = 0; nImg < lista.size(); nImg++) {
+            image = lista.get(nImg).getImg();
+            for (Recorte r : rec.get(nImg)) {
+                for (int i = r.getxMin(); i < r.getxMax(); i++) {
+                    for (int j = r.getyMin(); j < r.getyMax(); j++) {
+                        a=i;
+                        b=j;
+                        if(i<0)
+                            a=0;
+                        if(j<0)
+                            b=0;
+                        Color c = new Color(image.getRGB(b, a));
+                        int red = (int) (1);
+                        int green = (int) (1);
+                        int blue = (int) (1);
+                        Color gray = new Color(red + green + blue, red + green + blue, red + green + blue);
+                        image.setRGB(b, a, gray.getRGB());
+                        
+                    }
+                }
+            }
+            File ouptut = new File(destino + "/" + lista.get(nImg).getNome() + "_TesteTTT_" + execucao + ".bmp");
+            ImageIO.write(image, "bmp", ouptut);
+        }
 
     }
 

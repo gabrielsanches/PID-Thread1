@@ -161,8 +161,8 @@ public class Inicial extends javax.swing.JFrame {
                     metodos.Limiarizacao(lista, execucao, destino);
                     jTextArea1.setText(jTextArea1.getText()+"\nLimiarizando");
                     execucao++;
-                    metodos.varreduraColuna(lista, execucao, destino);
-                    metodos.varreduraLinha(lista, execucao, destino);
+                    
+                    metodos.Recortar(lista,execucao,destino,metodos.capturarRecorte(metodos.varreduraLinha(lista, execucao, destino), metodos.varreduraColuna(lista, execucao, destino)));
                 } catch (IOException ex) {
                     Logger.getLogger(Inicial.class.getName()).log(Level.SEVERE, null, ex);
                 }
