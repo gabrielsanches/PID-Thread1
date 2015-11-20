@@ -3,7 +3,9 @@ package Metodos;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
 
@@ -83,13 +85,18 @@ public class Metodos {
         }
     }
 
-    public ArrayList<ArrayList<Integer>> varreduraColuna(ArrayList<Imagem> lista, int execucao, String destino) {
+    public ArrayList<ArrayList<Integer>> varreduraColuna(ArrayList<Imagem> lista, int execucao, String destino) throws IOException {
         ArrayList<ArrayList<Integer>> result = new ArrayList<ArrayList<Integer>>();
         int width;
         int height;
-        BufferedImage image;
-
+        BufferedImage image;  
+        int count = 0;
+        
         for (Imagem img : lista) {
+            count++;
+            FileWriter arq = new FileWriter("Teste_coluna"+count+".txt");
+            PrintWriter gravarArq = new PrintWriter(arq);
+            gravarArq.printf("Arquivo %d%n", count);
             image = img.getImg();
             width = image.getWidth();
             height = image.getHeight();
@@ -103,6 +110,7 @@ public class Metodos {
                         linha++;
                     }
                 }
+                gravarArq.printf("%d ",linha);
                 linhasImg.add(linha);
             }
             result.add(linhasImg);
@@ -110,13 +118,18 @@ public class Metodos {
         return result;
     }
 
-    public ArrayList<ArrayList<Integer>> varreduraLinha(ArrayList<Imagem> lista, int execucao, String destino) {
+    public ArrayList<ArrayList<Integer>> varreduraLinha(ArrayList<Imagem> lista, int execucao, String destino) throws IOException {
         ArrayList<ArrayList<Integer>> result = new ArrayList<ArrayList<Integer>>();
         int width;
         int height;
         BufferedImage image;
+        int count=0;
 
         for (Imagem img : lista) {
+            count++;
+            FileWriter arq = new FileWriter("Teste_linha"+count+".txt");
+            PrintWriter gravarArq = new PrintWriter(arq);
+            gravarArq.printf("Arquivo %d%n", count);
             image = img.getImg();
             width = image.getWidth();
             height = image.getHeight();
@@ -130,6 +143,7 @@ public class Metodos {
                         coluna++;
                     }
                 }
+                gravarArq.printf("%d ",coluna);
                 colunasImg.add(coluna);
             }
             result.add(colunasImg);
