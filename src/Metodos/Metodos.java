@@ -96,7 +96,7 @@ public class Metodos {
             count++;
             FileWriter arq = new FileWriter("Teste_coluna"+count+".txt");
             PrintWriter gravarArq = new PrintWriter(arq);
-            gravarArq.printf("Arquivo %d%n", count);
+            gravarArq.println("Arquivo "+count);
             image = img.getImg();
             width = image.getWidth();
             height = image.getHeight();
@@ -110,9 +110,13 @@ public class Metodos {
                         linha++;
                     }
                 }
-                gravarArq.printf("%d ",linha);
+                gravarArq.print(linha+" ");
                 linhasImg.add(linha);
             }
+            gravarArq.println();
+            gravarArq.flush();
+            gravarArq.close();
+            arq.close();
             result.add(linhasImg);
         }
         return result;
@@ -129,7 +133,7 @@ public class Metodos {
             count++;
             FileWriter arq = new FileWriter("Teste_linha"+count+".txt");
             PrintWriter gravarArq = new PrintWriter(arq);
-            gravarArq.printf("Arquivo %d%n", count);
+            gravarArq.println("Arquivo "+ count);
             image = img.getImg();
             width = image.getWidth();
             height = image.getHeight();
@@ -143,9 +147,13 @@ public class Metodos {
                         coluna++;
                     }
                 }
-                gravarArq.printf("%d ",coluna);
+                gravarArq.print(coluna+" ");
                 colunasImg.add(coluna);
             }
+            gravarArq.println();
+            gravarArq.flush();
+            gravarArq.close();
+            arq.close();
             result.add(colunasImg);
         }
         return result;

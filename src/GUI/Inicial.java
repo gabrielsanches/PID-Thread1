@@ -158,9 +158,12 @@ public class Inicial extends javax.swing.JFrame {
                     
                     metodos.EscalaCinza(lista, execucao, destino);
                     jTextArea1.setText(jTextArea1.getText()+"\nTransformando para tons de cinza");
+                    execucao++;
                     metodos.Limiarizacao(lista, execucao, destino);
                     jTextArea1.setText(jTextArea1.getText()+"\nLimiarizando");
                     execucao++;
+                    metodos.varreduraColuna(lista, execucao, destino);
+                    metodos.varreduraLinha(lista, execucao, destino);
                 } catch (IOException ex) {
                     Logger.getLogger(Inicial.class.getName()).log(Level.SEVERE, null, ex);
                 }
