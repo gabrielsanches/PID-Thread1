@@ -158,7 +158,6 @@ public class Inicial extends javax.swing.JFrame {
                     
                     metodos.EscalaCinza(lista, execucao, destino);
                     jTextArea1.setText(jTextArea1.getText()+"\nTransformando para tons de cinza");
-                    execucao++;
                     metodos.Limiarizacao(lista, execucao, destino);
                     jTextArea1.setText(jTextArea1.getText()+"\nLimiarizando");
                     execucao++;
