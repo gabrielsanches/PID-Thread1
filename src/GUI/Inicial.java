@@ -34,7 +34,7 @@ public class Inicial extends javax.swing.JFrame {
         jbExecutar = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Consuelo System");
+        setTitle("Consuelo System - Divisão de Dados");
 
         jbAbrir.setText("Abrir");
         jbAbrir.addActionListener(new java.awt.event.ActionListener() {
