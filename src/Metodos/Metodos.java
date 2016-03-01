@@ -89,7 +89,6 @@ public class Metodos {
             Mat imagem = img.getImg();
             Mat Img_new = new Mat(imagem.rows(), imagem.cols(), CvType.CV_8UC1);
             File output = new File(destino + "/Etapa" + etapa + "_TonsCinza"+thread+"/"+img.getNome() + "_" + execucao + ".bmp");
-            
             Imgproc.cvtColor(imagem, Img_new, Imgproc.COLOR_RGB2GRAY);
             //ImageIO.write(mat2Img(Img_new), "bmp", output);
             MatImagem image = new MatImagem(Img_new, img.getNome());

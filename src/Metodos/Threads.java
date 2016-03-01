@@ -13,15 +13,16 @@ import org.opencv.imgcodecs.Imgcodecs;
 public class Threads implements Runnable {
 
     ArrayList<CaminhoImg> Cimagens = new ArrayList<>();
-    
     String destino, nome_img;
     int id;
     boolean isActive = true;
     double tempo_inicial, tempo_final;
+    String thread;
 
     public Threads(String b, int id) {
         destino = b;
         this.id = id;
+        thread = "_Thread_" + id;
     }
 
     public boolean isIsActive() {
@@ -32,12 +33,10 @@ public class Threads implements Runnable {
     public void run() {
         if (!Cimagens.isEmpty()) {
             tempo_inicial = System.currentTimeMillis();
-            String thread = "_Thread_" + id;
             int cont = 1;
             int execucao = 1;
 
             for (int i = 0; i < Cimagens.size(); i++) {
-                Metodos metodos = new Metodos();
                 cont = 1;
                 execucao = 1;
                 MatImagem img = new MatImagem(Imgcodecs.imread(Cimagens.get(i).getCaminho()), Cimagens.get(i).getNome());
@@ -45,6 +44,8 @@ public class Threads implements Runnable {
                 lista_img.add(img);
 
                 try {
+
+                    Metodos metodos = new Metodos();
                     lista_img = metodos.TonsCinza(lista_img, execucao, destino, cont, thread);
                     execucao++;
                     cont++;
@@ -75,9 +76,10 @@ public class Threads implements Runnable {
 
                 lista_img.remove(0);
             }
-            Metodos metodos = new Metodos();
             try {
-                metodos.ReconhecerDigitos(execucao, destino, cont - 1, thread);
+
+                Metodos metodos = new Metodos();
+                metodos.ReconhecerDigitos(execucao, destino, 8, thread);
                 execucao++;
             } catch (Exception ex) {
                 Logger.getLogger(Threads.class.getName()).log(Level.SEVERE, null, ex);
@@ -96,17 +98,14 @@ public class Threads implements Runnable {
     public double getTempo_inicial() {
         return tempo_inicial;
     }
-
-    public void setTempo_inicial(double tempo_inicial) {
-        this.tempo_inicial = tempo_inicial;
-    }
-
+    
     public double getTempo_final() {
         return tempo_final;
     }
 
-    public void setTempo_final(double tempo_final) {
-        this.tempo_final = tempo_final;
+    public String getThread() {
+        return thread;
     }
-
+    
+    
 }

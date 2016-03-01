@@ -3,8 +3,18 @@ package GUI;
 import Metodos.CaminhoImg;
 import Metodos.Metodos;
 import Metodos.Threads;
+import ch.qos.logback.core.joran.spi.ConsoleTarget;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import org.opencv.core.Core;
 
@@ -14,8 +24,8 @@ public class Inicial extends javax.swing.JFrame {
     ArrayList<CaminhoImg> lista_CImagens = new ArrayList<>();
     String diretorio = null;
     String destino = null;
-    int execucao = 1, numero_imagens = 100, n_threads = 4;
-    Metodos metodos = new Metodos();
+    int execucao = 1, numero_imagens = 6, n_threads = 2;
+    double tempo_inicio_sequencial, tempo_final_sequencial;
 
     public Inicial() {
         initComponents();
@@ -114,7 +124,7 @@ public class Inicial extends javax.swing.JFrame {
         //lista = new ArrayList<>();
         final JFileChooser chooser = new JFileChooser();
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        chooser.setCurrentDirectory(new File("C:\\Users\\Gabriel\\Documents\\PID6 - Thread1\\PID\\Entrada"));
+        chooser.setCurrentDirectory(new File("C:\\Users\\Gabriel\\Documents\\PID-Thread1\\Entrada"));
         final int returnVal = chooser.showDialog(null, "Escolher Pasta");
 
         if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -143,7 +153,7 @@ public class Inicial extends javax.swing.JFrame {
     private void jbDestinoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbDestinoActionPerformed
         final JFileChooser chooser = new JFileChooser();
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        chooser.setCurrentDirectory(new File("C:\\Users\\Gabriel\\Documents\\PID6 - Thread1\\PID\\Saida"));
+        chooser.setCurrentDirectory(new File("C:\\Users\\Gabriel\\Documents\\PID-Thread1\\Saida"));
         final int returnVal = chooser.showDialog(null, "Escolher Pasta de Saída");
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             destino = chooser.getSelectedFile().getAbsolutePath();
@@ -158,14 +168,15 @@ public class Inicial extends javax.swing.JFrame {
             jTextArea1.setText(jTextArea1.getText() + "\nNenhum destino selecionado");
         } else {
             double tempo_inicio = System.currentTimeMillis();
-            int k = 0;
+
             Threads[] threads = new Threads[n_threads];
-            Thread[] t=new Thread[n_threads];
+            Thread[] t = new Thread[n_threads];
             for (int i = 0; i < n_threads; i++) {
                 threads[i] = new Threads(destino, i);
             }
 
-            jTextArea1.setText(jTextArea1.getText() + "\nRealizando Filtros");
+            int k = 0;
+            jTextArea1.setText(jTextArea1.getText() + "\nRealizando Filtros\n");
             while (!lista_CImagens.isEmpty()) {
                 threads[k].addCImagem(lista_CImagens.remove(0));
                 k++;
@@ -173,9 +184,9 @@ public class Inicial extends javax.swing.JFrame {
                     k = 0;
                 }
             }
-
+            tempo_inicio_sequencial = System.currentTimeMillis() - tempo_inicio;
             for (int i = 0; i < n_threads; i++) {
-                t[i]=new Thread(threads[i]);
+                t[i] = new Thread(threads[i]);
                 t[i].start();
             }
 
@@ -191,26 +202,74 @@ public class Inicial extends javax.swing.JFrame {
                 }
             }
 
-            //INCLUIR A JUNÇÃO DOS RESULTADOS DAS THREADS EM UM RESULTADO SÓ
-            
-            double tempo_final_total = System.currentTimeMillis();
-            
-            for (int i = 0; i < n_threads; i++) {
-                
-                double tempo_execucao = threads[i].getTempo_final() - threads[i].getTempo_inicial();
-                System.out.println("Reconheceu Thread " + i);
-                System.out.println("Tempo inicial = " + threads[i].getTempo_inicial());
-                System.out.println("Tempo final = " + threads[i].getTempo_final());
-                System.out.println("Tempo de execução: " + tempo_execucao + " segundos");
+            double aux = System.currentTimeMillis();
+            try {
+                juntarResultados(threads);
+            } catch (Exception ex) {
+                Logger.getLogger(Inicial.class.getName()).log(Level.SEVERE, null, ex);
             }
 
-            jTextArea1.setText(jTextArea1.getText() + "\nFinalizado");
-            
+            double tempo_final_total = System.currentTimeMillis();
+            tempo_final_sequencial = tempo_final_total - aux;
+            for (int i = 0; i < n_threads; i++) {
+
+                double tempo_execucao = threads[i].getTempo_final() - threads[i].getTempo_inicial();
+                jTextArea1.setText(jTextArea1.getText() + "\nReconheceu Thread " + i);
+                jTextArea1.setText(jTextArea1.getText() + "\nTempo de execução: " + tempo_execucao + " milissegundos");
+            }
+
+            jTextArea1.setText(jTextArea1.getText() + "\nExecução Finalizada!");
+
             double tempo_execucao = tempo_final_total - tempo_inicio;
-            System.out.println("\nTempo de execução total = "+tempo_execucao);
-            jTextArea1.setText("\nTempo de execução total: " + tempo_execucao + " segundos");
+            jTextArea1.setText(jTextArea1.getText() + "\nTempo sequencial inicial: " + tempo_inicio_sequencial + " milissegundos");
+            jTextArea1.setText(jTextArea1.getText() + "\nTempo sequencial final: " + tempo_final_sequencial + " milissegundos");
+            jTextArea1.setText(jTextArea1.getText() + "\nTempo de execução total: " + tempo_execucao + " milissegundos");
         }
     }//GEN-LAST:event_jbExecutarActionPerformed
+
+    public void juntarResultados(Threads[] lista_t) throws FileNotFoundException, IOException {
+        int soma_tickets = 0;
+
+        ArrayList<String> tickets = new ArrayList<>();
+        ArrayList<Integer> contador = new ArrayList<>();
+
+        FileWriter fw = new FileWriter("resultado_total.txt");
+        BufferedWriter bw = new BufferedWriter(fw);
+
+        for (Threads t : lista_t) {
+            Scanner scan = new Scanner(new File("resultado" + t.getThread() + ".txt"));
+            while (scan.hasNextLine()) {
+                String line = scan.nextLine();
+                if (line.length() == 7) {
+                    String ticket = line.split("=")[0].trim();
+                    Integer numbers = Integer.parseInt(line.split("=")[1].trim());
+                    if (tickets.contains(ticket)) {
+                        int id_ticket = tickets.indexOf(ticket);
+                        contador.set(id_ticket, contador.get(id_ticket) + numbers);
+                    } else {
+                        contador.add(numbers);
+                        tickets.add(ticket);
+                    }
+                }
+                if (line.length() > 10) {
+                    if (line.charAt(0) == 'T') {
+                        Integer number = Integer.parseInt(line.substring(line.split("=")[0].length() + 2, line.length()));
+                        soma_tickets += number;
+                    }
+
+                }
+
+            }
+        }
+        
+        bw.write("Número de repetições de Tickets em cada imagem\n\n");
+        bw.write("Tickets encontrados nas imagens = " + soma_tickets + "\n");
+        
+        for (int i=0;i<tickets.size();i++){
+            bw.write(tickets.get(i) + " = " + contador.get(i) + "\n");
+        }
+        bw.close();
+    }
 
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
@@ -253,4 +312,5 @@ public class Inicial extends javax.swing.JFrame {
     private javax.swing.JTextField jtAbrir;
     private javax.swing.JTextField jtDestino;
     // End of variables declaration//GEN-END:variables
+
 }
