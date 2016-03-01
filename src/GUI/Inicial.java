@@ -1,8 +1,11 @@
 package GUI;
 
+import Metodos.CaminhoImg;
 import Metodos.Imagem;
+import Metodos.MatImagem;
 import Metodos.Metodos;
 import Metodos.Ponto;
+import Metodos.Threads;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -10,13 +13,18 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
+import net.sourceforge.tess4j.TesseractException;
+import org.opencv.core.Core;
+import org.opencv.core.Mat;
+import org.opencv.imgcodecs.Imgcodecs;
 
 public class Inicial extends javax.swing.JFrame {
 
-    ArrayList<Imagem> lista = new ArrayList<>();
+    //ArrayList<MatImagem> lista_imagens = new ArrayList<>();
+    ArrayList<CaminhoImg> lista_CImagens = new ArrayList<>();
     String diretorio = null;
     String destino = null;
-    int execucao = 1;
+    int execucao = 1, numero_imagens = 0, n_threads = 4;
     Metodos metodos = new Metodos();
 
     public Inicial() {
@@ -112,9 +120,11 @@ public class Inicial extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jbAbrirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbAbrirActionPerformed
-        lista = new ArrayList<>();
+        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+        //lista = new ArrayList<>();
         final JFileChooser chooser = new JFileChooser();
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        chooser.setCurrentDirectory(new File("C:\\Users\\Gabriel\\Documents\\PID6 - Thread1\\PID\\Entrada"));
         final int returnVal = chooser.showDialog(null, "Escolher Pasta");
 
         if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -124,12 +134,14 @@ public class Inicial extends javax.swing.JFrame {
                 File file = new File(diretorio);
                 File afile[] = file.listFiles();
                 int i = 0;
-                for (int j = afile.length; i < j; i++) {
+                numero_imagens = afile.length;
+                for (int j = numero_imagens; i < j; i++) {
                     File arquivos = afile[i];
                     if (arquivos.getName().substring(arquivos.getName().length() - 4).equals(".bmp")) {
                         jTextArea1.setText(jTextArea1.getText() + "\nAbrindo arquivo: " + arquivos.getName());
-                        Imagem img = new Imagem(ImageIO.read(arquivos), arquivos.getName().substring(0, arquivos.getName().length() - 4));
-                        lista.add(img);
+                        //Mat source = Imgcodecs.imread(jtAbrir.getText().replace("\\", "\\\\") + "\\\\" + arquivos.getName());
+                        lista_CImagens.add(new CaminhoImg(jtAbrir.getText().replace("\\", "\\\\") + "\\\\" + arquivos.getName(), arquivos.getName().substring(0, arquivos.getName().length() - 4)));
+                        //lista_imagens.add(new MatImagem(source, arquivos.getName().substring(0, arquivos.getName().length() - 4)));
                     }
                 }
             } catch (final Exception ioException) {
@@ -141,6 +153,7 @@ public class Inicial extends javax.swing.JFrame {
     private void jbDestinoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbDestinoActionPerformed
         final JFileChooser chooser = new JFileChooser();
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        chooser.setCurrentDirectory(new File("C:\\Users\\Gabriel\\Documents\\PID6 - Thread1\\PID\\Saida"));
         final int returnVal = chooser.showDialog(null, "Escolher Pasta de Saída");
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             destino = chooser.getSelectedFile().getAbsolutePath();
@@ -149,38 +162,57 @@ public class Inicial extends javax.swing.JFrame {
     }//GEN-LAST:event_jbDestinoActionPerformed
 
     private void jbExecutarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbExecutarActionPerformed
-        if (lista.isEmpty()) {
+        if (lista_CImagens.isEmpty()) {
             jTextArea1.setText(jTextArea1.getText() + "\nNenhuma imagem selecionada");
         } else if (destino == null) {
             jTextArea1.setText(jTextArea1.getText() + "\nNenhum destino selecionado");
         } else {
-            try {
-                jTextArea1.setText(jTextArea1.getText() + "\nTransformando para tons de cinza");
-                lista = metodos.EscalaCinza(lista, execucao, destino);
-                execucao++;
-                
-                jTextArea1.setText(jTextArea1.getText() + "\nLimiarizando");
-                lista = metodos.Limiarizacao(lista, execucao, destino);
-                
-                execucao++;
-                jTextArea1.setText(jTextArea1.getText() + "\nRecortando");
-                
-                lista = metodos.Recortar(lista, execucao, destino, metodos.capturarRecorte(metodos.varreduraLinha(lista, execucao, destino,120), metodos.varreduraColuna(lista, execucao, destino,120)));
-                execucao++;
-                
-//                jTextArea1.setText(jTextArea1.getText() + "\nCalculando Mediana");
-//                lista = metodos.Mediana(lista, execucao, destino);
-//                execucao++;
+            double tempo_inicio = System.currentTimeMillis();
+            int k = 0;
+            Threads[] threads = new Threads[n_threads];
 
-                //jTextArea1.setText(jTextArea1.getText() + "\nLimiarizando");
-                //lista = metodos.Limiarizacao(lista, execucao, destino);
-                
-                lista = metodos.Recortar2(lista, execucao, destino, metodos.capturarRecorte1(metodos.varreduraLinha(lista, execucao, destino,200), metodos.varreduraColuna(lista, execucao, destino,200)));
-                execucao++;
-                //listinha=metodos.CorrigeInclinacao(listinha, execucao, destino);
-            } catch (IOException ex) {
-                Logger.getLogger(Inicial.class.getName()).log(Level.SEVERE, null, ex);
+            for (int i = 0; i < n_threads; i++) {
+                threads[i] = new Threads(destino, i);
             }
+
+            jTextArea1.setText(jTextArea1.getText() + "\nRealizando Filtros");
+            while (!lista_CImagens.isEmpty()) {
+                threads[k].addCImagem(lista_CImagens.remove(0));
+                k++;
+                if (k == n_threads) {
+                    k = 0;
+                }
+            }
+
+            for (int i = 0; i < n_threads; i++) {
+                threads[i].run();
+            }
+
+            while (true) {
+                int i, count_threads = 0;
+                for (i = 0; i < n_threads; i++) {
+                    if (!threads[i].isIsActive()) {
+                        count_threads++;
+                    }
+                }
+                if (count_threads == n_threads) {
+                    break;
+                }
+            }
+
+            for (int i = 0; i < n_threads; i++) {
+                
+                double tempo_execucao = threads[i].getTempo_final() - threads[i].getTempo_inicial();
+                System.out.println("Reconheceu Thread " + i);
+                System.out.println("Tempo inicial = " + threads[i].getTempo_inicial());
+                System.out.println("Tempo final = " + threads[i].getTempo_final());
+                System.out.println("\nTempo de execução: " + tempo_execucao + " segundos");
+            }
+
+            jTextArea1.setText(jTextArea1.getText() + "\nFinalizado");
+            double tempo_final = System.currentTimeMillis();
+            double tempo_execucao = tempo_final - tempo_inicio;
+            jTextArea1.setText("\nTempo de execução total: " + tempo_execucao + " segundos");
         }
     }//GEN-LAST:event_jbExecutarActionPerformed
 
