@@ -1,22 +1,12 @@
 package GUI;
 
 import Metodos.CaminhoImg;
-import Metodos.Imagem;
-import Metodos.MatImagem;
 import Metodos.Metodos;
-import Metodos.Ponto;
 import Metodos.Threads;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
-import net.sourceforge.tess4j.TesseractException;
 import org.opencv.core.Core;
-import org.opencv.core.Mat;
-import org.opencv.imgcodecs.Imgcodecs;
 
 public class Inicial extends javax.swing.JFrame {
 
@@ -170,7 +160,7 @@ public class Inicial extends javax.swing.JFrame {
             double tempo_inicio = System.currentTimeMillis();
             int k = 0;
             Threads[] threads = new Threads[n_threads];
-
+            Thread[] t=new Thread[n_threads];
             for (int i = 0; i < n_threads; i++) {
                 threads[i] = new Threads(destino, i);
             }
@@ -185,7 +175,8 @@ public class Inicial extends javax.swing.JFrame {
             }
 
             for (int i = 0; i < n_threads; i++) {
-                threads[i].run();
+                t[i]=new Thread(threads[i]);
+                t[i].start();
             }
 
             while (true) {
