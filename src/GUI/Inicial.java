@@ -14,7 +14,7 @@ public class Inicial extends javax.swing.JFrame {
     ArrayList<CaminhoImg> lista_CImagens = new ArrayList<>();
     String diretorio = null;
     String destino = null;
-    int execucao = 1, numero_imagens = 0, n_threads = 4;
+    int execucao = 1, numero_imagens = 4, n_threads = 4;
     Metodos metodos = new Metodos();
 
     public Inicial() {
@@ -191,25 +191,27 @@ public class Inicial extends javax.swing.JFrame {
                 }
             }
 
+            //INCLUIR A JUNÇÃO DOS RESULTADOS DAS THREADS EM UM RESULTADO SÓ
+            
+            double tempo_final_total = System.currentTimeMillis();
+            
             for (int i = 0; i < n_threads; i++) {
                 
                 double tempo_execucao = threads[i].getTempo_final() - threads[i].getTempo_inicial();
                 System.out.println("Reconheceu Thread " + i);
                 System.out.println("Tempo inicial = " + threads[i].getTempo_inicial());
                 System.out.println("Tempo final = " + threads[i].getTempo_final());
-                System.out.println("\nTempo de execução: " + tempo_execucao + " segundos");
+                System.out.println("Tempo de execução: " + tempo_execucao + " segundos");
             }
 
             jTextArea1.setText(jTextArea1.getText() + "\nFinalizado");
-            double tempo_final = System.currentTimeMillis();
-            double tempo_execucao = tempo_final - tempo_inicio;
+            
+            double tempo_execucao = tempo_final_total - tempo_inicio;
+            System.out.println("\nTempo de execução total = "+tempo_execucao);
             jTextArea1.setText("\nTempo de execução total: " + tempo_execucao + " segundos");
         }
     }//GEN-LAST:event_jbExecutarActionPerformed
 
-    /**
-     * @param args the command line arguments
-     */
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
