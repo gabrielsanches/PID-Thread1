@@ -13,7 +13,7 @@ import org.opencv.imgcodecs.Imgcodecs;
 public class Threads implements Runnable {
 
     ArrayList<CaminhoImg> Cimagens = new ArrayList<>();
-    Metodos metodos = new Metodos();
+    
     String destino, nome_img;
     int id;
     boolean isActive = true;
@@ -37,6 +37,7 @@ public class Threads implements Runnable {
             int execucao = 1;
 
             for (int i = 0; i < Cimagens.size(); i++) {
+                Metodos metodos = new Metodos();
                 cont = 1;
                 execucao = 1;
                 MatImagem img = new MatImagem(Imgcodecs.imread(Cimagens.get(i).getCaminho()), Cimagens.get(i).getNome());
@@ -74,6 +75,7 @@ public class Threads implements Runnable {
 
                 lista_img.remove(0);
             }
+            Metodos metodos = new Metodos();
             try {
                 metodos.ReconhecerDigitos(execucao, destino, cont - 1, thread);
                 execucao++;

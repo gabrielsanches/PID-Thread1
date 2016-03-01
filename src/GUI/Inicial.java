@@ -14,7 +14,7 @@ public class Inicial extends javax.swing.JFrame {
     ArrayList<CaminhoImg> lista_CImagens = new ArrayList<>();
     String diretorio = null;
     String destino = null;
-    int execucao = 1, numero_imagens = 4, n_threads = 4;
+    int execucao = 1, numero_imagens = 100, n_threads = 4;
     Metodos metodos = new Metodos();
 
     public Inicial() {
